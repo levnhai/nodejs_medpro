@@ -1,0 +1,19 @@
+<h1> HOme </h1><div class="mt-4">
+    <div class="row">
+            {{#each users}}
+            <div class="col col-4">
+                    <div class="card" style="width: 18rem;">
+                              <img src="{{this.image}}" class="card-img-top" alt="{{this.name}}">
+                        
+                        <div class="card-body">
+                            <a >
+                                 <h5 class="card-title">{{this.email}}</h5>
+                             </a>
+                            <p class="card-text">{{this.address}}</p>
+                            <a href="#" class="btn btn-primary">mua ngay</a>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+    </div>
+</div>
