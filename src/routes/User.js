@@ -5,6 +5,8 @@ const userController = require('../app/Controller/UserController');
 router.post('/check-phone', userController.checkPhoneNumber);
 router.post('/send-otp', userController.sendOtp);
 router.post('/verify-otp', userController.verifyOtp);
+router.post('/login', userController.LoginUser);
+router.post('/create-account', userController.createAccount);
 router.get('/', userController.index);
 
 module.exports = router;
