@@ -2,21 +2,15 @@ const UserServices = require('../../services/UserServices');
 
 class userController {
   async checkPhoneNumber(req, res) {
-    let phone = req.body.phone;
-    let phoneNumber = await UserServices.handleCheckUser(phone);
-    console.log('phoneNumber', phoneNumber);
-
+    let phoneNumber = req.body.phoneNumber;
+    let isCheckPhoneExists = await UserServices.handleCheckPhoneExists(phoneNumber);
     return res.status(200).json({
-      errCode: phoneNumber.errCode,
-      messageError: phoneNumber.messageError,
-      status: phoneNumber.status,
+      isCheckPhoneExists,
     });
   }
 
   async sendOtp(req, res) {
     let sendOtp = await UserServices.handleSendOtp();
-
-    console.log(sendOtp);
     return res.status(200).json({
       errCode: sendOtp.errCode,
       messageError: sendOtp.messageError,
@@ -26,7 +20,6 @@ class userController {
 
   async verifyOtp(req, res) {
     let otpInput = req.body.otpInput;
-    console.log(otpInput);
     let VerifyOtpInput = await UserServices.handleVerifyOtpInput(otpInput);
     return VerifyOtpInput;
   }
@@ -45,7 +38,6 @@ class userController {
 
   async createAccount(req, res) {
     let data = req.body;
-
     let userData = await UserServices.handleCreateAccount(data);
     return res.status(200).json({
       errCode: userData.errCode,

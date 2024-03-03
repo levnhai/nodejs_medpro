@@ -3,25 +3,6 @@ const UserDb = require('../app/Models/User');
 const bcrypt = require('bcryptjs');
 const salt = bcrypt.genSaltSync(10);
 
-const handleCheckUser = (phone) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let userData = {};
-      let isPhone = await checkPhone(phone);
-
-      if (isPhone) {
-        (userData.errCode = 0), (userData.messageError = 'tìm thấy'), (userData.status = isPhone);
-      } else {
-        (userData.errCode = 1), (userData.messageError = 'Số điện thoại không tồn tại '), (userData.status = isPhone);
-      }
-
-      resolve(userData);
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
 const handleSendOtp = () => {
   return new Promise((resolve, reject) => {
     try {
@@ -45,8 +26,6 @@ const handleVerifyOtpInput = (otpInput) => {
   return new Promise(async (resolve, reject) => {
     try {
       const data = handleSendOtp();
-      console.log('data:', data);
-      console.log('người dùng nhập vào:', otpInput);
     } catch (error) {
       reject(error);
     }
@@ -85,17 +64,24 @@ const handleCreateAccount = (data) => {
       const userData = {};
       let hastpassword = await hastPassword(data.password);
       let hastReEnterPassword = await hastPassword(data.reEnterPassword);
-      if (data.password === data.reEnterPassword) {
-        const user = await UserDb.create({
-          phoneNumber: data.phone,
-          fullName: data.fullName,
-          password: hastpassword,
-          reEnterPassword: hastReEnterPassword,
-          referralCode: data.referralCode,
-        });
-        (userData.errCode = 0), (userData.messageError = 'Tạo tài khoản thành công'), (userData.user = user);
+
+      const isCheckphoneExists = await handleCheckPhoneExists(data.phoneNumber);
+      if (!isCheckphoneExists) {
+        if (data.password === data.reEnterPassword) {
+          const user = await UserDb.create({
+            phoneNumber: data.phoneNumber,
+            fullName: data.fullName,
+            password: hastpassword,
+            reEnterPassword: hastReEnterPassword,
+            referralCode: data.referralCode,
+          });
+          (userData.errCode = 0), (userData.messageError = 'Tạo tài khoản thành công'), (userData.user = user);
+        } else {
+          (userData.errCode = 1), (userData.messageError = 'Nhập khẩu không khớp'), (userData.user = {});
+        }
       } else {
-        (userData.errCode = 1), (userData.messageError = 'nhập khẩu không khớp'), (userData.user = {});
+        (userData.errCode = 2), (userData.messageError = 'Số điện thoại đã tồn tại'), (userData.user = {});
+        resolve(userData);
       }
 
       resolve(userData);
@@ -105,18 +91,24 @@ const handleCreateAccount = (data) => {
   });
 };
 
-const checkPhone = (phone) => {
+const handleCheckPhoneExists = (phone) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let isPhone = await UserDb.findOne({
+      let isCheckPhoneExists = await UserDb.findOne({
         phoneNumber: phone,
       });
-      resolve(isPhone ? true : false);
+
+      if (isCheckPhoneExists) {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
     } catch (error) {
       reject(error);
     }
   });
 };
+
 // tạo 1 otp ngẫu nhiên 6 số
 const generateOTP = () => {
   const digits = '0123456789';
@@ -139,8 +131,8 @@ let hastPassword = (password) => {
 };
 
 module.exports = {
-  handleCheckUser,
   handleSendOtp,
   handleCreateAccount,
   handleLogin,
+  handleCheckPhoneExists,
 };
