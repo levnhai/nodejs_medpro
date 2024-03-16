@@ -3,15 +3,16 @@ const Schema = mongoose.Schema;
 
 const Docter = new Schema(
   {
-    email: { type: 'string', required: true },
+    email: { type: 'string' },
     password: { type: 'string', required: true },
     fullName: { type: 'string', required: true },
     reEnterPassword: { type: 'string', required: true },
-    address: { type: 'string', required: true },
-    gender: { type: 'string', required: true },
-    roleId: { type: 'string', required: true },
-    phoneNumber: { type: 'number', required: true },
-    positionId: { type: 'string', required: true },
+    address: { type: 'string' },
+    gender: { type: 'string' },
+    roleId: { type: 'string' },
+    phoneNumber: { type: 'string' },
+    positionId: { type: 'string' },
+    referralCode: { type: 'string' },
     image: { type: Buffer, contentType: String },
   },
   { timestamps: true },

@@ -1,25 +1,46 @@
 const AdminServices = require('../../services/AdminServices');
+const SiteServices = require('../../services/SiteServices');
 
 const { mutipleMongooseToObject } = require('../../util/mongoose');
 
 class SiteController {
-  async getAllUsers(req, res, next) {
-    let id = req.query.id; // all or id
+  async getAllData(req, res, next) {
+    let id = req.query.id; // user, admin, docter...
+    console.log('id', id);
     if (!id) {
       return res.status(200).json({
         errcode: 1,
-        errMessage: 'User not found',
+        errMessage: 'Id not found....',
       });
     }
 
-    let users = await AdminServices.getAllUsers(id);
-
+    let users = await SiteServices.getAllData(id);
+    console.log('users', users);
     return res.status(200).json({
-      errcode: 0,
-      errMessage: 'Lấy tất cả người dùng',
-      data: users,
+      users,
     });
   }
+
+  async createAccount(req, res) {
+    let data = req.body;
+    let userData = await SiteServices.handleCreateAccount(data);
+    return res.status(200).json({
+      errCode: userData.errCode,
+      messageError: userData.messageError,
+      userData: userData.user,
+    });
+  }
+  async EditUser(req, res, next) {
+    let user = await SiteServices.handleEditUser(req.body);
+    return res.status(200).json({
+      errcode: user.errcode,
+      errMessage: user.messageError,
+      data: user,
+    });
+  }
+
+  ///
+
   async DeleteUser(req, res) {
     let userId = req.body.id;
     if (!userId) {
@@ -28,74 +49,9 @@ class SiteController {
         errMessage: 'Không tìm thấy Người dùng',
       });
     }
-    let user = await AdminServices.deleteUser(userId);
+    let user = await SiteServices.deleteUser(userId);
     return res.status(200).json({
       user,
-    });
-  }
-
-  async EditUser(req, res) {
-    let user = await AdminServices.EditUser(req.body);
-    return res.status(200).json({
-      user,
-    });
-  }
-
-  async CreateDocter(req, res) {
-    let data = req.body;
-    console.log(data);
-    let DocterData = await AdminServices.handleCreateAccount(data);
-    return res.status(200).json({
-      errCode: DocterData.errCode,
-      messageError: DocterData.messageError,
-      userData: DocterData.docter,
-    });
-  }
-
-  async getAllDocters(req, res, next) {
-    let id = req.query.id; // all or id
-    if (!id) {
-      return res.status(200).json({
-        errcode: 1,
-        errMessage: 'docter not found',
-      });
-    }
-
-    let docters = await AdminServices.getAllDocter(id);
-
-    return res.status(200).json({
-      errcode: 0,
-      errMessage: 'thành công',
-      data: docters,
-    });
-  }
-  async editDocter(req, res, next) {
-    let data = req.body;
-    console.log(data);
-    let docter = await AdminServices.editDocter(req.body);
-    return res.status(200).json({
-      errcode: docter.errcode,
-      errMessage: docter.messageError,
-      data: docter,
-    });
-  }
-
-  async deleteDocter(req, res, next) {
-    let docterId = req.body.id;
-    console.log('docterId', docterId);
-
-    if (!docterId) {
-      return res.status(200).json({
-        errcode: 1,
-        errMessage: 'User not found',
-      });
-    }
-    let docter = await AdminServices.deleteDocter(docterId);
-
-    return res.status(200).json({
-      errcode: 0,
-      errMessage: 'thành công',
-      data: docter,
     });
   }
 

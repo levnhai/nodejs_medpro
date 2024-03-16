@@ -1,5 +1,4 @@
-const User = require('../app/Models/User');
-const UserDb = require('../app/Models/User');
+const DocterDb = require('../app/Models/Docter');
 const bcrypt = require('bcryptjs');
 const salt = bcrypt.genSaltSync(10);
 
@@ -36,7 +35,7 @@ const handleLogin = (phoneNumber, password) => {
   return new Promise(async (resolve, reject) => {
     try {
       let userData = {};
-      let user = await UserDb.findOne({
+      let user = await DocterDb.findOne({
         phoneNumber: phoneNumber,
       });
       let isPassword = await bcrypt.compare(password, user.password);
@@ -64,16 +63,21 @@ const handleCreateAccount = (data) => {
       const userData = {};
       let hastpassword = await hastPassword(data.password);
       let hastReEnterPassword = await hastPassword(data.reEnterPassword);
-
       const isCheckphoneExists = await handleCheckPhoneExists(data.phoneNumber);
       if (!isCheckphoneExists) {
         if (data.password === data.reEnterPassword) {
-          const user = await UserDb.create({
+          const user = await DocterDb.create({
             phoneNumber: data.phoneNumber,
             fullName: data.fullName,
             password: hastpassword,
             reEnterPassword: hastReEnterPassword,
             referralCode: data.referralCode,
+            email: data.email,
+            address: data.address,
+            gender: data.gender,
+            roleId: data.roleId,
+            positionId: data.positionId,
+            image: data.image,
           });
           (userData.errCode = 0), (userData.messageError = 'Tạo tài khoản thành công'), (userData.user = user);
         } else {
@@ -91,11 +95,11 @@ const handleCreateAccount = (data) => {
   });
 };
 
-const handleCheckPhoneExists = (phone) => {
+const handleCheckPhoneExists = (phoneNumberInput) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let isCheckPhoneExists = await UserDb.findOne({
-        phoneNumber: phone,
+      let isCheckPhoneExists = await DocterDb.findOne({
+        phoneNumber: phoneNumberInput,
       });
 
       if (isCheckPhoneExists) {

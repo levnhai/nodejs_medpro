@@ -2,7 +2,7 @@ const UserServices = require('../../services/UserServices');
 
 class userController {
   async checkPhoneNumber(req, res) {
-    let phoneNumber = req.body.phoneNumber;
+    let { phoneNumber } = req.body;
     let isCheckPhoneExists = await UserServices.handleCheckPhoneExists(phoneNumber);
     return res.status(200).json({
       isCheckPhoneExists,
