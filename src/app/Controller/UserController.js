@@ -36,15 +36,15 @@ class userController {
     });
   }
 
-  async createAccount(req, res) {
-    let data = req.body;
-    let userData = await UserServices.handleCreateAccount(data);
-    return res.status(200).json({
-      errCode: userData.errCode,
-      messageError: userData.messageError,
-      userData: userData.user,
-    });
-  }
+  // async createAccount(req, res) {
+  //   let data = req.body;
+  //   let userData = await UserServices.handleCreateAccount(data);
+  //   return res.status(200).json({
+  //     errCode: userData.errCode,
+  //     messageError: userData.messageError,
+  //     userData: userData.user,
+  //   });
+  // }
 
   index(req, res, next) {
     res.send('hai le');

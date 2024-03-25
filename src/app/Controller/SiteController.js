@@ -23,6 +23,7 @@ class SiteController {
 
   async createAccount(req, res) {
     let data = req.body;
+    console.log('data', data);
     let userData = await SiteServices.handleCreateAccount(data);
     return res.status(200).json({
       errCode: userData.errCode,

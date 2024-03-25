@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
 const Docter = new Schema(
   {
+    // _id: Schema.Types.ObjectId,
     email: { type: 'string' },
     password: { type: 'string', required: true },
     fullName: { type: 'string', required: true },

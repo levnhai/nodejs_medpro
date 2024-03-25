@@ -7,17 +7,13 @@ const getAllData = (Id) => {
   return new Promise(async (resolve, reject) => {
     try {
       let data = {};
-      if (Id === 'patiend') {
-        data = await DocterDb.find({ roleId: 'patiend' }, '-image -password -reEnterPassword');
-        console.log('user');
-        console.log(data);
-      } else if (Id === 'docter') {
-        console.log('docter');
-        data = await DocterDb.find({ roleId: 'docter' }, ' -password -reEnterPassword');
-      } else if (Id === 'admin') {
-        data = await DocterDb.find({ roleId: 'admin' }, ' -password -reEnterPassword');
+      if (Id === 'R3') {
+        data = await DocterDb.find({ roleId: 'R3' }, '-image -password -reEnterPassword');
+      } else if (Id === 'R2') {
+        data = await DocterDb.find({ roleId: 'R2' }, ' -password -reEnterPassword');
+      } else if (Id === 'R1') {
+        data = await DocterDb.find({ roleId: 'R1' }, ' -password -reEnterPassword');
       }
-      console.log('data', data);
       resolve({
         errCode: 0,
         errMessage: 'get all data successfully ...',

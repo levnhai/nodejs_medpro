@@ -57,43 +57,43 @@ const handleLogin = (phoneNumber, password) => {
   });
 };
 
-const handleCreateAccount = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const userData = {};
-      let hastpassword = await hastPassword(data.password);
-      let hastReEnterPassword = await hastPassword(data.reEnterPassword);
-      const isCheckphoneExists = await handleCheckPhoneExists(data.phoneNumber);
-      if (!isCheckphoneExists) {
-        if (data.password === data.reEnterPassword) {
-          const user = await DocterDb.create({
-            phoneNumber: data.phoneNumber,
-            fullName: data.fullName,
-            password: hastpassword,
-            reEnterPassword: hastReEnterPassword,
-            referralCode: data.referralCode,
-            email: data.email,
-            address: data.address,
-            gender: data.gender,
-            roleId: data.roleId,
-            positionId: data.positionId,
-            image: data.image,
-          });
-          (userData.errCode = 0), (userData.messageError = 'Tạo tài khoản thành công'), (userData.user = user);
-        } else {
-          (userData.errCode = 1), (userData.messageError = 'Nhập khẩu không khớp'), (userData.user = {});
-        }
-      } else {
-        (userData.errCode = 2), (userData.messageError = 'Số điện thoại đã tồn tại'), (userData.user = {});
-        resolve(userData);
-      }
+// const handleCreateAccount = (data) => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       const userData = {};
+//       let hastpassword = await hastPassword(data.password);
+//       let hastReEnterPassword = await hastPassword(data.reEnterPassword);
+//       const isCheckphoneExists = await handleCheckPhoneExists(data.phoneNumber);
+//       if (!isCheckphoneExists) {
+//         if (data.password === data.reEnterPassword) {
+//           const user = await DocterDb.create({
+//             phoneNumber: data.phoneNumber,
+//             fullName: data.fullName,
+//             password: hastpassword,
+//             reEnterPassword: hastReEnterPassword,
+//             referralCode: data.referralCode,
+//             email: data.email,
+//             address: data.address,
+//             gender: data.gender,
+//             roleId: data.roleId,
+//             positionId: data.positionId,
+//             image: data.image,
+//           });
+//           (userData.errCode = 0), (userData.messageError = 'Tạo tài khoản thành công'), (userData.user = user);
+//         } else {
+//           (userData.errCode = 1), (userData.messageError = 'Nhập khẩu không khớp'), (userData.user = {});
+//         }
+//       } else {
+//         (userData.errCode = 2), (userData.messageError = 'Số điện thoại đã tồn tại'), (userData.user = {});
+//         resolve(userData);
+//       }
 
-      resolve(userData);
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
+//       resolve(userData);
+//     } catch (error) {
+//       reject(error);
+//     }
+//   });
+// };
 
 const handleCheckPhoneExists = (phoneNumberInput) => {
   return new Promise(async (resolve, reject) => {
@@ -136,7 +136,7 @@ let hastPassword = (password) => {
 
 module.exports = {
   handleSendOtp,
-  handleCreateAccount,
+  // handleCreateAccount,
   handleLogin,
   handleCheckPhoneExists,
 };
