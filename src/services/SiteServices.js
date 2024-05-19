@@ -1,130 +1,11 @@
+const _ = require('lodash');
 const DocterDb = require('../app/Models/Docter');
+const ProvinceDb = require('../app/Models/province');
+const ScheduleDb = require('../app/Models/Schedules');
+const AllCodeDb = require('../app/Models/allcode');
 const bcrypt = require('bcryptjs');
 const salt = bcrypt.genSaltSync(10);
-
-// get all user
-const getAllData = (Id) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let data = {};
-      if (Id === 'R3') {
-        data = await DocterDb.find({ roleId: 'R3' }, '-image -password -reEnterPassword');
-      } else if (Id === 'R2') {
-        data = await DocterDb.find({ roleId: 'R2' }, ' -password -reEnterPassword');
-      } else if (Id === 'R1') {
-        data = await DocterDb.find({ roleId: 'R1' }, ' -password -reEnterPassword');
-      }
-      resolve({
-        errCode: 0,
-        errMessage: 'get all data successfully ...',
-        data: data,
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const handleCreateAccount = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const userData = {};
-      let hastpassword = await hastPassword(data.password);
-      let hastReEnterPassword = await hastPassword(data.reEnterPassword);
-      const isCheckphoneExists = await handleCheckPhoneExists(data.phoneNumber);
-      if (!isCheckphoneExists) {
-        if (data.password === data.reEnterPassword) {
-          const user = await DocterDb.create({
-            phoneNumber: data.phoneNumber,
-            fullName: data.fullName,
-            password: hastpassword,
-            reEnterPassword: hastReEnterPassword,
-            referralCode: data.referralCode,
-            email: data.email,
-            address: data.address,
-            gender: data.gender,
-            roleId: data.roleId,
-            positionId: data.positionId,
-            image: data.image,
-          });
-          (userData.errCode = 0), (userData.messageError = 'Tạo tài khoản thành công'), (userData.user = user);
-        } else {
-          (userData.errCode = 1), (userData.messageError = 'Nhập khẩu không khớp'), (userData.user = {});
-        }
-      } else {
-        (userData.errCode = 2), (userData.messageError = 'Số điện thoại đã tồn tại'), (userData.user = {});
-        resolve(userData);
-      }
-
-      resolve(userData);
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-const handleEditUser = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let user = await DocterDb.findOne({ _id: data.id });
-      let isPhoneNumber = true;
-      if (!user.phoneNumber === data.phoneNumber) {
-        isPhoneNumber = await checkPhoneNumber(data.phoneNumber);
-      }
-      if (!user) {
-        resolve({
-          errCode: 2,
-          result: false,
-          errMessage: 'Không tìm thấy người dùng',
-        });
-      } else {
-        !isPhoneNumber
-          ? resolve({
-              errCode: 3,
-              result: false,
-              errMessage: 'Số điện thoại đã tồn tại',
-            })
-          : await DocterDb.findOneAndUpdate(
-              { _id: data.id },
-              {
-                fullName: data.fullName,
-                phoneNumber: data.phoneNumber,
-                email: data.email,
-                password: data.password,
-                reEnterPassword: data.reEnterPassword,
-                address: data.address,
-                gender: data.gender,
-                positionId: data.positionId,
-                roleId: data.roleId,
-                image: data.image,
-              },
-              { new: true },
-            );
-        resolve({
-          errCode: 0,
-          result: true,
-          errMessage: 'edit user successfully',
-        });
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-// delete a user
-const deleteUser = (docterId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      await DocterDb.deleteOne({ _id: docterId });
-      resolve({
-        errCode: 0,
-        errMessage: 'deleted docter successfully',
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
+const MAX_NUMBER_SCHEDULE = 10;
 
 const handleCheckPhoneExists = (phoneNumberInput) => {
   return new Promise(async (resolve, reject) => {
@@ -155,9 +36,83 @@ let hastPassword = (password) => {
   });
 };
 
+// handle get all province
+const getAllProvince = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let data = {};
+      data = await ProvinceDb.find({});
+      resolve({
+        errCode: 0,
+        errMessage: 'get all data successfully ...',
+        data: data,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+// handle get all code by type
+const getAllCodeDataByType = (typeInput) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let data = {};
+      data = await AllCodeDb.find({ type: typeInput });
+      resolve({
+        errCode: 0,
+        errMessage: 'get all data successfully ...',
+        data: data,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const bulkCreateSchedule = async (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!data.schedule) {
+        resolve({
+          errCode: 1,
+          errMessage: 'missing require prams ...',
+        });
+      } else {
+        let schedule = data.schedule;
+
+        // thêm cột MAX_NUMBER_SCHEDULE trong db
+        if (schedule && schedule.length > 0) {
+          schedule = schedule.map((item) => {
+            item.maxNumber = MAX_NUMBER_SCHEDULE;
+            return item;
+          });
+        }
+
+        // lấy dữ liệu trong db với diều kiện
+        let existing = await ScheduleDb.find({ date: data.formattedDate, docterId: data.docterId });
+
+        // kiểm tra sự tồn tại trong db, trả về những kết quả không trùng khớp
+        let toCreate = _.differenceWith(schedule, existing, (a, b) => {
+          return a.timeType === b.timeType && a.date === b.date;
+        });
+
+        // lưu dữ liệu
+        if (toCreate && toCreate.length > 0) {
+          await ScheduleDb.insertMany(toCreate);
+          resolve({
+            errCode: 0,
+            errMessage: 'successfully created schedule...',
+          });
+        }
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 module.exports = {
-  getAllData,
-  handleCreateAccount,
-  handleEditUser,
-  deleteUser,
+  getAllProvince,
+  getAllCodeDataByType,
+  bulkCreateSchedule,
 };

@@ -3,11 +3,14 @@ const router = express.Router();
 const siteController = require('../app/Controller/SiteController');
 const docterController = require('../app/Controller/DocterController');
 
-router.get('/all-data', siteController.getAllData);
-router.put('/edit-user', siteController.EditUser);
-router.post('/create-account', siteController.createAccount);
-router.delete('/delete-user', siteController.DeleteUser);
 router.get('/get-top-docter', docterController.outStandingDocter);
-router.get('/', siteController.index);
+router.post('/save-infor-docter', docterController.saveInforDocter);
+router.get('/detail-infor-docter', docterController.getDetailInforDocter);
 
+// get api province
+router.get('/get-all-province', siteController.getAllProvince);
+router.get('/get-all-code-services', siteController.getAllCodeServices);
+router.post('/bulk-create-schedule', siteController.bulkCreateSchedule);
+
+router.get('/', siteController.index);
 module.exports = router;

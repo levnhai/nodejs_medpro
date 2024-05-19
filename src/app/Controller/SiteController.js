@@ -1,58 +1,28 @@
-const AdminServices = require('../../services/AdminServices');
 const SiteServices = require('../../services/SiteServices');
 
 const { mutipleMongooseToObject } = require('../../util/mongoose');
 
 class SiteController {
-  async getAllData(req, res, next) {
-    let id = req.query.id; // user, admin, docter...
-    console.log('id', id);
-    if (!id) {
-      return res.status(200).json({
-        errcode: 1,
-        errMessage: 'Id not found....',
-      });
-    }
-
-    let users = await SiteServices.getAllData(id);
-    console.log('users', users);
+  // province
+  async getAllProvince(req, res, next) {
+    let provinces = await SiteServices.getAllProvince();
     return res.status(200).json({
-      users,
+      provinces,
     });
   }
 
-  async createAccount(req, res) {
-    let data = req.body;
-    console.log('data', data);
-    let userData = await SiteServices.handleCreateAccount(data);
+  async getAllCodeServices(req, res, next) {
+    let type = req.query.type;
+    let allCodeData = await SiteServices.getAllCodeDataByType(type);
     return res.status(200).json({
-      errCode: userData.errCode,
-      messageError: userData.messageError,
-      userData: userData.user,
-    });
-  }
-  async EditUser(req, res, next) {
-    let user = await SiteServices.handleEditUser(req.body);
-    return res.status(200).json({
-      errcode: user.errcode,
-      errMessage: user.messageError,
-      data: user,
+      allCodeData,
     });
   }
 
-  ///
-
-  async DeleteUser(req, res) {
-    let userId = req.body.id;
-    if (!userId) {
-      return res.status(200).json({
-        errcode: 1,
-        errMessage: 'Không tìm thấy Người dùng',
-      });
-    }
-    let user = await SiteServices.deleteUser(userId);
+  async bulkCreateSchedule(req, res, next) {
+    let schedule = await SiteServices.bulkCreateSchedule(req.body);
     return res.status(200).json({
-      user,
+      schedule,
     });
   }
 
